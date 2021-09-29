@@ -28,17 +28,19 @@ QString MainWindow::getOrderEqu(QString equ,int &order)
     //int order =0;
     QString newEqu = ""; //newEqu without any spaces:
     for (int i=0;i<equ.size();++i) {
+        //remove spaces:
         if(equ[i].isSpace()){
             continue;
         }
         else{
             newEqu+=equ[i];
         }
-
+        //detect if there is power operator:
         if(equ[i] == '^'){
             if(i+1<equ.size() && equ[i+1].isDigit()){
                 QString chr = equ[i+1].toLower();
                 int ord = chr.toInt();
+                //preserve largest order(power)
                 if(ord>order)
                     order=ord;
             }
@@ -47,18 +49,20 @@ QString MainWindow::getOrderEqu(QString equ,int &order)
                 msgBox.critical(0,"Error","Wrong Input : Can't get the order of the Function!!");
             }
         }
-        else if(equ[i]=='x' || equ[i]=='X'){ //for 1st order equations..
+        else if(equ[i]=='x' || equ[i]=='X'){
+            //for 1st order equations..
             if(order==0)
                 order=1;
         }
     }
 
-    return newEqu;
+    return newEqu;//return equation free of spaces..
 }
 
 double MainWindow::func_x(double x)
 {
-    double fx=1;
+    double fx=1;//to store accumulated value of fx
+
     for(int i =0;i<operations.size();++i){
         if(operations[i]=="+" || operations[i] =="-"){
             if(i+1>=operations.size()){
@@ -68,6 +72,7 @@ double MainWindow::func_x(double x)
             i++;
             double fx2 = 1;
             int ord = operations[i].toInt();
+            //to see if power of this order is negative of not (i.e. num/x^num)
             bool negPower = false;
             if(ord<0) {
                 negPower = true;
@@ -84,8 +89,9 @@ double MainWindow::func_x(double x)
                 }
                 else fx2*=x;
             }
-            fx2 *= equOrders[ord];
+            fx2 *= equOrders[ord]; //multiply by the index of each order
 
+            //determine wheater to add or subtract fx2 to fx
             if(operations[i-1]=="+"){
                 fx+=fx2;
             }
@@ -93,7 +99,8 @@ double MainWindow::func_x(double x)
                 fx-=fx2;
             }
         }
-        else {//number of specific order
+        else {
+            //number of specific order
             int ord = operations[i].toInt();
             bool negPower = false;
             if(ord<0) {
@@ -129,14 +136,12 @@ bool MainWindow::evaluteEquation()
 
     double currIndex =0;
     for (int i=0;i<equStr.size();++i) {
-        if(equStr[i].isSpace()){
-            continue;
-        }
-        else if(equStr[i].isLetter() && equStr[i]!='x' && equStr[i]!='X'){
+        if(equStr[i].isLetter() && equStr[i]!='x' && equStr[i]!='X'){
             msgBox.critical(0,"Error","Wrong Input : There is letters other than x!!");
             return false;
         }
         else if(equStr[i].isNumber()){
+            //if two numbers or more after each others:
             if(isPrevNum){
                 currIndex*=10;
             }
@@ -289,6 +294,8 @@ bool MainWindow::evaluteEquation()
     return true;
 }
 
+
+//validate user inputs and equation::
 bool MainWindow::validateInput()
 {
     if(ui->min_x->text().isEmpty()||ui->min_x->text().isEmpty() ||ui->max_x->text().isEmpty()){
@@ -304,30 +311,43 @@ bool MainWindow::validateInput()
     return evaluteEquation();
 }
 
+
+//set the ranges of both axes and rescale them:
 void MainWindow::setRanges(double min_y, double max_y)
 {
     ui->plot->xAxis->setRange(ui->min_x->text().toDouble(),ui->max_x->text().toDouble());
     ui->plot->yAxis->setRange(min_y,max_y);
 }
 
+
+//update data vectors to be added to graph::
 void MainWindow::addData()
 {
-    double min_y =9999 , max_y=-9999 ,fx = 0, x =ui->min_x->text().toDouble();
+    //to store the min and max value of Y:
+    double min_y =DOUBLE_MAX_VALUE , max_y=DOUBLE_MIN_VALUE ;
+    double fx = 0, x =ui->min_x->text().toDouble();
     double step = (ui->max_x->text().toDouble()-ui->min_x->text().toDouble())/100;
     cout << "operations size = " <<to_string(operations.size()) <<endl;
     for(int i = 0;i<101;i++){
         qv_x.append(x+step*i);
-        fx=func_x(qv_x[i]);
+        fx=func_x(qv_x[i]);//calculate fx
         qv_y.append(fx);
 
         //set min y and max y:
         if(fx<min_y)min_y=fx;
         if(fx>max_y)max_y=fx;
     }
+    //set y ranges for constants:
+    if(min_y == max_y){
+        min_y=min_y/2;
+        max_y+=min_y;
+    }
 
-    setRanges(min_y,max_y);
+    setRanges(min_y,max_y);//set ranges of axes
 }
 
+
+//clear all the vectors:
 void MainWindow::clearData()
 {
     qv_x.clear();
@@ -336,6 +356,8 @@ void MainWindow::clearData()
     equOrders.clear();
 }
 
+
+//update the plot on graph by new data vectors
 void MainWindow::plot()
 {
     ui->plot->graph(0)->setData(qv_x,qv_y);
@@ -343,7 +365,7 @@ void MainWindow::plot()
     ui->plot->update();
 }
 
-
+//draw button listner::
 void MainWindow::on_btn_draw_clicked()
 {
     clearData();
@@ -353,7 +375,7 @@ void MainWindow::on_btn_draw_clicked()
     }
 }
 
-
+//clear button listner::
 void MainWindow::on_btn_clear_clicked()
 {
     clearData();
