@@ -32,6 +32,7 @@ private slots:
     void addData();//add data to be drawn in plot graph
     void clearData();//clear all data from plot graph
     void plot();//plot the data itself in the graph
+    void checkOrderExistence(double currIndex,QString orderIndex );
 
     //buttons clicked functions (listner functions)
     void on_btn_draw_clicked();

@@ -125,6 +125,22 @@ double MainWindow::func_x(double x)
     return fx;
 }
 
+void MainWindow::checkOrderExistence(double currIndex,QString orderIndex )
+{
+    if(equOrders[orderIndex.toInt()]>0){
+        QString lastOper = operations[operations.size()-1];
+        operations.removeLast();
+        if(lastOper=="+")
+             equOrders[orderIndex.toInt()] += currIndex;
+        else
+            equOrders[orderIndex.toInt()] -= currIndex;
+    }
+    else{
+        operations.append(orderIndex);
+        equOrders[orderIndex.toInt()] = currIndex;
+    }
+}
+
 bool MainWindow::evaluteEquation()
 {
     QString equStr = ui->fx->text();
@@ -227,35 +243,13 @@ bool MainWindow::evaluteEquation()
 
             if(i+1<equStr.size() && equStr[i+1] == '^'){
                i++;
-               QString chr = equStr[i+1].toLower();
-               if(equOrders[chr.toInt()]>0){
-                   QString lastOper = operations[operations.size()-1];
-                   operations.removeLast();
-                   if(lastOper=="+")
-                        equOrders[chr.toInt()] += currIndex;
-                   else
-                       equOrders[chr.toInt()] -= currIndex;
-               }
-               else{
-                   operations.append(chr);
-                   equOrders[chr.toInt()] = currIndex;
-               }
+               QString ord = equStr[i+1].toLower();
+               checkOrderExistence(currIndex,ord);
                currIndex=0;
                i++;
             }
             else { //order =1
-                if(equOrders[1]>0){
-                    QString lastOper = operations[operations.size()-1];
-                    operations.removeLast();
-                    if(lastOper=="+")
-                         equOrders[1] += currIndex;
-                    else
-                        equOrders[1] -= currIndex;
-                }
-                else{
-                    operations.append("1");
-                    equOrders[1] = currIndex;
-                }
+                checkOrderExistence(currIndex,"1");
                 currIndex=0;
 
             }
@@ -264,8 +258,7 @@ bool MainWindow::evaluteEquation()
             isPrevNum=false;
             if(i+1<equStr.size()&& (equStr[i+1].isNumber() || equStr[i+1] == 'x' || equStr[i+1] == 'X')){
                 if(currIndex!=0){
-                    operations.append("0");
-                    equOrders[0] = currIndex;
+                    checkOrderExistence(currIndex,"0");
                     currIndex=0;
                 }
                 if(equStr[i]=='+'){
@@ -284,9 +277,7 @@ bool MainWindow::evaluteEquation()
         }
     }
     if(currIndex!=0){
-        cout << to_string(currIndex) <<endl;
-        operations.append("0");
-        equOrders[0] = currIndex;
+        checkOrderExistence(currIndex,"0");
     }
     cout << "order = " <<to_string(order) <<endl;
     for(int i =0;i<order+1;++i){
@@ -328,12 +319,6 @@ void MainWindow::addData()
     double min_y =DOUBLE_MAX_VALUE , max_y=DOUBLE_MIN_VALUE ;
     double fx = 0, x =ui->min_x->text().toDouble();
     double step = (ui->max_x->text().toDouble()-ui->min_x->text().toDouble())/100;
-    cout << "operations size = " <<to_string(operations.size()) <<endl;
-    for (QString q : operations ) {
-        if(q=="+")cout << "+"<<endl;
-        else if(q=="-")cout << "-"<<endl;
-        else cout << to_string(q.toInt())<<endl;
-    }
     for(int i = 0;i<101;i++){
         qv_x.append(x+step*i);
         fx=func_x(qv_x[i]);//calculate fx
