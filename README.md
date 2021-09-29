@@ -6,6 +6,9 @@ This is a GUI program that plots arbitrary user-entered function of x.
 
 No '(' , ')' are supported..
 
-## Some Correct Working examples:
+## Some examples:
 ![](photos/correct0.PNG)
 
+![](photos/wrong1.PNG)
+
+You can see all examples in the photos folder..
