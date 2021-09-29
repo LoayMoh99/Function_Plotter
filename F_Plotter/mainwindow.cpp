@@ -183,7 +183,7 @@ bool MainWindow::evaluteEquation()
                            equOrders[chr.toInt()] = currIndex;
                        }
 
-
+                       i++;
                        currIndex=0;
                     }
                     else { //order =1
@@ -284,6 +284,7 @@ bool MainWindow::evaluteEquation()
         }
     }
     if(currIndex!=0){
+        cout << to_string(currIndex) <<endl;
         operations.append("0");
         equOrders[0] = currIndex;
     }
@@ -328,6 +329,11 @@ void MainWindow::addData()
     double fx = 0, x =ui->min_x->text().toDouble();
     double step = (ui->max_x->text().toDouble()-ui->min_x->text().toDouble())/100;
     cout << "operations size = " <<to_string(operations.size()) <<endl;
+    for (QString q : operations ) {
+        if(q=="+")cout << "+"<<endl;
+        else if(q=="-")cout << "-"<<endl;
+        else cout << to_string(q.toInt())<<endl;
+    }
     for(int i = 0;i<101;i++){
         qv_x.append(x+step*i);
         fx=func_x(qv_x[i]);//calculate fx
