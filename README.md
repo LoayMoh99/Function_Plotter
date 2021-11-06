@@ -32,4 +32,7 @@ I am using QT C++
   ![image](https://user-images.githubusercontent.com/25959419/132961760-a6d79e65-f4ee-4122-86ca-16b82a075a8b.png)
   
   - proceed with the installation and click finish
+  - Finally; add the mingw bin folder to path (ex. windows: "C:\Qt\5.15.2\mingw81_64\bin" , NOT "C:\Qt\Tools\mingw810_64\bin").
+
+Then clone the repo and go to ./F_Plotter folder.. 
 
